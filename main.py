@@ -1,22 +1,25 @@
 import PySimpleGUI as sg
-import pyodbc
+import os
+import psycopg2
+import dotenv
+
+dotenv.load_dotenv()
 
 class app:
     def __init__(self):
         sg.theme('LightBrown5')
-        self.dados = (
-            "Driver={SQL Server};"
-            "Server=REIFFERPC\SQLEXPRESS;"
-            "Database=filmes"
-        )
-        self.conexao = pyodbc.connect(self.dados)
+        self.conexao = psycopg2.connect(user=os.environ['FDB_user'],
+                                  password=os.environ['FDB_password'],
+                                  host=os.environ['FDB_host'],
+                                  port=os.environ['FDB_port'],
+                                  database=os.environ['FDB_database'])
         self.cursor = self.conexao.cursor()
 
 
     def TelaPrincipal(self):
         buttons = [[sg.Button('Filmes Assistidos',size=(20,1)),sg.Button('Filmes Para Assistir',size=(20,1)),sg.Button('Adicionar Filme',size=(20,1))]]
         layout = [
-            [sg.Image(r'download.png', size=(800, 200))],
+            [sg.Image(r'img/download.png', size=(800, 200))],
             [sg.Text('')],
             [sg.Column(buttons,justification='center')]
         ]
@@ -30,7 +33,7 @@ class app:
         assistidos = self.cursor.fetchall()
 
         layout = [
-            [sg.Text('Lista de Filmes Assistidos',size=(74,1)),sg.Image('check.png')],
+            [sg.Text('Lista de Filmes Assistidos',size=(74,1)),sg.Image('img/check.png')],
             [sg.Listbox(assistidos,size=(100,20),key='filmesassistidos')],
             [sg.Button('Remover Filme',size=(20,3)),sg.Button('Voltar',size=(20,3))]
 
@@ -44,7 +47,7 @@ class app:
         assistir = self.cursor.fetchall()
 
         layout = [
-            [sg.Text('Lista de Filmes Para Assistir',size=(74,1)),sg.Image('not a check.png')],
+            [sg.Text('Lista de Filmes Para Assistir',size=(74,1)),sg.Image('img/not a check.png')],
             [sg.Listbox(assistir,size=(100,20),key='listaassitir')],
             [sg.Button('Filme Já Assistido',size=(20,3)),sg.Button('Remover Filme',size=(20,3)),sg.Button('Voltar',size=(20,3))]
         ]
